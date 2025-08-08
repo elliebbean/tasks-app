@@ -8,12 +8,15 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route index element={<Home />} />
-          <Route path="task/:taskId" element={<Task />} />
-        </Routes>
-      </BrowserRouter>
+      <h1 className="text-2xl ml-10 my-8">Tasks App</h1>
+      <main className="flex justify-center">
+        <BrowserRouter>
+          <Routes>
+            <Route index element={<Home />} />
+            <Route path="task/:taskId" element={<Task />} />
+          </Routes>
+        </BrowserRouter>
+      </main>
     </QueryClientProvider>
   );
 }
