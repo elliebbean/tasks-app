@@ -30,33 +30,45 @@ function Home() {
     if (tasksQuery.isError) {
       return <p className="text-red-600 text-center font-semibold">Error loading tasks - try reloading the page</p>;
     } else if (tasksQuery.data && tasksQuery.data.length > 0) {
-      return tasksQuery.data?.map((task) => (
-        <Card key={task.id}>
-          <div className="flex items-stretch gap-2">
-            <input
-              type="checkbox"
-              aria-label="Completed"
-              checked={task.isCompleted}
-              onChange={(event) => onCompletionCheckboxChange(event, task.id)}
-            />
-            <div
-              className={classNames("flex flex-col justify-center grow border-x border-gray-500 px-1", {
-                "line-through": task.isCompleted,
-              })}
+      return (
+        <ul className="flex flex-col gap-2">
+          {tasksQuery.data?.map((task) => (
+            <li
+              key={task.id}
+              aria-labelledby={`task-${task.id}-title`}
+              aria-describedby={`task-${task.id}-description`}
             >
-              <h2 className="text-lg font-semibold">{task.title}</h2>
-              <p>{task.description}</p>
-              {task.dueDate && <p className="text-sm">Due: {task.dueDate?.toLocaleDateString()}</p>}
-            </div>
-            <div className="flex flex-col">
-              <Button to={`/task/${task.id}`}>Edit</Button>
-              <Button variant="danger" onClick={() => onDeleteButtonClick(task.id, task.title)}>
-                Delete
-              </Button>
-            </div>
-          </div>
-        </Card>
-      ));
+              <Card>
+                <div className="flex items-stretch gap-2">
+                  <input
+                    type="checkbox"
+                    aria-label="Completed"
+                    checked={task.isCompleted}
+                    onChange={(event) => onCompletionCheckboxChange(event, task.id)}
+                  />
+                  <div
+                    className={classNames("flex flex-col justify-center grow border-x border-gray-500 px-1", {
+                      "line-through": task.isCompleted,
+                    })}
+                  >
+                    <h2 id={`task-${task.id}-title`} className="text-lg font-semibold">
+                      {task.title}
+                    </h2>
+                    <p id={`task-${task.id}-description`}>{task.description}</p>
+                    {task.dueDate && <p className="text-sm">Due: {task.dueDate?.toLocaleDateString()}</p>}
+                  </div>
+                  <div className="flex flex-col">
+                    <Button to={`/task/${task.id}`}>Edit</Button>
+                    <Button variant="danger" onClick={() => onDeleteButtonClick(task.id, task.title)}>
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      );
     } else if (tasksQuery.isLoading) {
       return <p className="text-center font-semibold">Loading tasks...</p>;
     } else {

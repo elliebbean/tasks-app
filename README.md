@@ -10,6 +10,8 @@ Then run `npm run dev` to start the dev server and go to <http://localhost:5173/
 
 Alternatively, run `npm run build && npm run preview` and go to <http://localhost:4173/> to preview a prodution build.
 
+The test suite can be run with `npm run test`.
+
 ## Notes
 
 ### `dueDate` type in `mock-api.ts`
