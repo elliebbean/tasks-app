@@ -1,35 +1,78 @@
-import { NavLink } from "react-router";
+import classNames from "classnames";
+import { useCallback, useMemo } from "react";
+import Button from "../components/Button";
 import Card from "../components/Card";
-import { useTasksQuery, useUpdateTaskMutation } from "../hooks/queries";
+import PageLayout from "../components/PageLayout";
+import { useDeleteTaskMutation, useTasksQuery, useUpdateTaskMutation } from "../hooks/queries";
 
 function Home() {
   const tasksQuery = useTasksQuery();
   const updateTaskMutation = useUpdateTaskMutation();
+  const deleteTaskMutation = useDeleteTaskMutation();
 
-  const handleCompletionCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, taskId: string) => {
-    updateTaskMutation.mutate({ id: taskId, updates: { isCompleted: event.target.checked } });
-  };
+  const onCompletionCheckboxChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>, taskId: string) => {
+      updateTaskMutation.mutate({ id: taskId, updates: { isCompleted: event.target.checked } });
+    },
+    [updateTaskMutation]
+  );
 
-  return (
-    <ul className="flex flex-col gap-2 w-full max-w-2xl">
-      {tasksQuery.data?.map((task) => (
+  const onDeleteButtonClick = useCallback(
+    (taskId: string, title: string) => {
+      if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+        deleteTaskMutation.mutate(taskId);
+      }
+    },
+    [deleteTaskMutation]
+  );
+
+  const content = useMemo(() => {
+    if (tasksQuery.isError) {
+      return <p className="text-red-600 text-center font-semibold">Error loading tasks - try reloading the page</p>;
+    } else if (tasksQuery.data && tasksQuery.data.length > 0) {
+      return tasksQuery.data?.map((task) => (
         <Card key={task.id}>
-          <div className="flex items-center">
+          <div className="flex items-stretch gap-2">
             <input
               type="checkbox"
+              aria-label="Completed"
               checked={task.isCompleted}
-              onChange={(event) => handleCompletionCheckboxChange(event, task.id)}
+              onChange={(event) => onCompletionCheckboxChange(event, task.id)}
             />
-            <div className="flex flex-col grow">
-              <span>{task.title}</span>
-              <span>{task.description}</span>
-              {task.dueDate && <span>Due: {task.dueDate?.toLocaleDateString()}</span>}
+            <div
+              className={classNames("flex flex-col justify-center grow border-x border-gray-500 px-1", {
+                "line-through": task.isCompleted,
+              })}
+            >
+              <h2 className="text-lg font-semibold">{task.title}</h2>
+              <p>{task.description}</p>
+              {task.dueDate && <p className="text-sm">Due: {task.dueDate?.toLocaleDateString()}</p>}
             </div>
-            <NavLink to={`/task/${task.id}`}>Edit</NavLink>
+            <div className="flex flex-col">
+              <Button to={`/task/${task.id}`}>Edit</Button>
+              <Button variant="danger" onClick={() => onDeleteButtonClick(task.id, task.title)}>
+                Delete
+              </Button>
+            </div>
           </div>
         </Card>
-      ))}
-    </ul>
+      ));
+    } else if (tasksQuery.isLoading) {
+      return <p className="text-center font-semibold">Loading tasks...</p>;
+    } else {
+      return <p className="text-center font-semibold">No tasks yet - create one to get started!</p>;
+    }
+  }, [onCompletionCheckboxChange, onDeleteButtonClick, tasksQuery]);
+
+  return (
+    <PageLayout title="Tasks">
+      <div className="flex flex-col items-stretch gap-2">
+        {content}
+        <Button variant="solid" to="/new">
+          New Task
+        </Button>
+      </div>
+    </PageLayout>
   );
 }
 
