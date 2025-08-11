@@ -39,7 +39,7 @@ function Home() {
               aria-describedby={`task-${task.id}-description`}
             >
               <Card>
-                <div className="flex items-stretch gap-2">
+                <div className="flex items-stretch gap-1 sm:gap-2">
                   <input
                     type="checkbox"
                     aria-label="Completed"
@@ -51,10 +51,12 @@ function Home() {
                       "line-through": task.isCompleted,
                     })}
                   >
-                    <h2 id={`task-${task.id}-title`} className="text-lg font-semibold">
+                    <h2 id={`task-${task.id}-title`} className="sm:text-lg font-semibold">
                       {task.title}
                     </h2>
-                    <p id={`task-${task.id}-description`}>{task.description}</p>
+                    <p id={`task-${task.id}-description`} className="text-sm sm:text-base">
+                      {task.description}
+                    </p>
                     {task.dueDate && <p className="text-sm">Due: {task.dueDate?.toLocaleDateString()}</p>}
                   </div>
                   <div className="flex flex-col">
